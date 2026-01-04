@@ -5,6 +5,7 @@ export interface Transaction {
   category: string;
   amount: number;
   type: TransactionType;
+  date: string;
 }
 
 export interface Category {

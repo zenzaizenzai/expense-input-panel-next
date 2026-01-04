@@ -1,15 +1,17 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { Category } from '../types';
 
 interface AmountInputModalProps {
   category: Category;
-  onSubmit: (amount: number) => void;
+  enableDate: boolean;
+  initialDate: string;
+  onSubmit: (amount: number, date: string) => void;
   onClose: () => void;
 }
 
-const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, onSubmit, onClose }) => {
+const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, enableDate, initialDate, onSubmit, onClose }) => {
   const [amount, setAmount] = useState('');
+  const [date, setDate] = useState(initialDate);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, onSubmit,
     e.preventDefault();
     const numericAmount = parseInt(amount, 10);
     if (!isNaN(numericAmount) && numericAmount > 0) {
-      onSubmit(numericAmount);
+      onSubmit(numericAmount, date);
     }
   };
 
@@ -45,6 +47,19 @@ const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, onSubmit,
         <p className="text-slate-500 mb-6">カテゴリ: <span className={`font-semibold ${accentColor}`}>{category.label}</span></p>
 
         <form onSubmit={handleSubmit}>
+          {enableDate && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-1">日付</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+          )}
+
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-lg">¥</span>
             <input

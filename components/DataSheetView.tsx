@@ -3,6 +3,7 @@ import type { Transaction } from '../types';
 
 interface DataSheetViewProps {
   transactions: Transaction[];
+  showDate: boolean;
   onClose: () => void;
   onClear: () => void;
 }
@@ -13,17 +14,18 @@ const CopyIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, onClose, onClear }) => {
+const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, showDate, onClose, onClear }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const tsvData = useMemo(() => {
-    // Format: Category <tab> Expense <tab> Income
+    // Format: [Date] <tab> Category <tab> Expense <tab> Income
     return transactions.map(t => {
       const income = t.type === 'income' ? t.amount : 0;
       const expense = t.type === 'expense' ? t.amount : 0;
-      return `${t.category}\t${expense}\t${income}`;
+      const dateStr = showDate ? `${t.date}\t` : '';
+      return `${dateStr}${t.category}\t${expense}\t${income}`;
     }).join('\n');
-  }, [transactions]);
+  }, [transactions, showDate]);
 
   const handleCopy = () => {
     if (textareaRef.current) {
@@ -38,7 +40,7 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, onClose, on
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 w-full max-w-3xl flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 w-full max-w-4xl flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-slate-800">データシート</h2>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-800 text-2xl font-bold">&times;</button>
@@ -52,6 +54,7 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, onClose, on
               <table className="w-full text-left">
                 <thead className="bg-slate-100 sticky top-0 z-10">
                   <tr>
+                    {showDate && <th className="p-3 font-semibold text-slate-600">日付</th>}
                     <th className="p-3 font-semibold text-slate-600">カテゴリ</th>
                     <th className="p-3 font-semibold text-slate-600 text-right text-red-600">支出 (円)</th>
                     <th className="p-3 font-semibold text-slate-600 text-right text-blue-600">収入 (円)</th>
@@ -60,6 +63,7 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, onClose, on
                 <tbody>
                   {transactions.map((tx) => (
                     <tr key={tx.id} className="border-b border-slate-200 last:border-b-0">
+                      {showDate && <td className="p-3 text-slate-600 whitespace-nowrap">{tx.date}</td>}
                       <td className="p-3">{tx.category}</td>
                       <td className="p-3 text-right font-mono text-slate-700">
                         {tx.type === 'expense' ? tx.amount.toLocaleString() : '-'}
@@ -75,7 +79,7 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, onClose, on
 
             <div className="mt-6">
               <label htmlFor="tsv-output" className="block text-sm font-medium text-slate-700 mb-2">
-                Excel用データ (コピーして貼り付け - 3列: カテゴリ/支出/収入)
+                Excel用データ (コピーして貼り付け - {showDate ? '4列: 日付/カテゴリ/支出/収入' : '3列: カテゴリ/支出/収入'})
               </label>
               <div className="relative">
                 <textarea

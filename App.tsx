@@ -53,12 +53,18 @@ const loadCategories = (): Category[] => {
   return DEFAULT_CATEGORIES;
 };
 
-const App: React.FC = () => {
+const App: React.FC = () => { /* State */
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>(loadCategories);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isDataSheetVisible, setIsDataSheetVisible] = useState(false);
+
+  // New: Date Mode Toggle
+  const [enableDate, setEnableDate] = useState(false);
+  // Keep track of the last used date for convenience when in date mode
+  const [currentDate, setCurrentDate] = useState(() => new Date().toISOString().split('T')[0]);
+
 
   useEffect(() => {
     try {
@@ -84,15 +90,21 @@ const App: React.FC = () => {
     );
   };
 
-  const handleAddTransaction = (amount: number) => {
+  const handleAddTransaction = (amount: number, date: string) => {
     if (selectedCategory) {
       const newTransaction: Transaction = {
         id: new Date().getTime().toString(),
         category: selectedCategory.label,
         amount,
         type: selectedCategory.type,
+        date: date,
       };
       setTransactions(prev => [...prev, newTransaction]);
+
+      // Update current date to reuse it next time if in date mode
+      if (enableDate) {
+        setCurrentDate(date);
+      }
     }
     setIsModalOpen(false);
     setSelectedCategory(null);
@@ -113,9 +125,39 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col items-center p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-6xl mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-700">収支入力パネル</h1>
-          <p className="text-slate-500 mt-2">カテゴリをクリックして金額を入力してください。</p>
+        <header className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-200 gap-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-700">収支入力パネル</h1>
+            <p className="text-slate-500 mt-2">カテゴリをクリックして金額を入力してください。</p>
+          </div>
+
+          <div className="flex items-center justify-center bg-white p-2 rounded-lg shadow-sm border border-slate-200">
+            <label htmlFor="date-toggle" className="mr-3 text-slate-600 font-semibold cursor-pointer select-none">
+              日付入力
+            </label>
+            <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+              <input
+                type="checkbox"
+                name="date-toggle"
+                id="date-toggle"
+                checked={enableDate}
+                onChange={() => setEnableDate(!enableDate)}
+                className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                style={{
+                  right: enableDate ? '0' : 'auto',
+                  left: enableDate ? 'auto' : '0',
+                  borderColor: enableDate ? '#4f46e5' : '#cbd5e1'
+                }}
+              />
+              <label
+                htmlFor="date-toggle"
+                className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${enableDate ? 'bg-indigo-600' : 'bg-slate-300'}`}
+              ></label>
+            </div>
+            <span className={`text-sm font-bold ${enableDate ? 'text-indigo-600' : 'text-slate-400'}`}>
+              {enableDate ? 'ON' : 'OFF'}
+            </span>
+          </div>
         </header>
 
         {/* カテゴリグリッド (支出16 + 収入4 = 20個) */}
@@ -155,6 +197,8 @@ const App: React.FC = () => {
       {isModalOpen && selectedCategory && (
         <AmountInputModal
           category={selectedCategory}
+          enableDate={enableDate}
+          initialDate={currentDate}
           onSubmit={handleAddTransaction}
           onClose={handleCloseModal}
         />
@@ -163,6 +207,7 @@ const App: React.FC = () => {
       {isDataSheetVisible && (
         <DataSheetView
           transactions={transactions}
+          showDate={enableDate}
           onClose={() => setIsDataSheetVisible(false)}
           onClear={handleClearTransactions}
         />
