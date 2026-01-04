@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import type { Category } from '../types';
 
 interface AmountInputModalProps {
-  category: string;
+  category: Category;
   onSubmit: (amount: number) => void;
   onClose: () => void;
 }
@@ -16,7 +17,7 @@ const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, onSubmit,
       inputRef.current.focus();
     }
   }, []);
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numericAmount = parseInt(amount, 10);
@@ -25,17 +26,23 @@ const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, onSubmit,
     }
   };
 
+  const isIncome = category.type === 'income';
+  const typeLabel = isIncome ? '収入' : '支出';
+  const accentColor = isIncome ? 'text-blue-600' : 'text-indigo-600';
+  const buttonColor = isIncome ? 'bg-blue-600 hover:bg-blue-700' : 'bg-indigo-600 hover:bg-indigo-700';
+  const ringColor = isIncome ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-indigo-500 focus:border-indigo-500';
+
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl p-6 sm:p-8 w-full max-w-sm"
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">金額を入力</h2>
-        <p className="text-slate-500 mb-6">カテゴリ: <span className="font-semibold text-indigo-600">{category}</span></p>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">{typeLabel}を入力</h2>
+        <p className="text-slate-500 mb-6">カテゴリ: <span className={`font-semibold ${accentColor}`}>{category.label}</span></p>
 
         <form onSubmit={handleSubmit}>
           <div className="relative">
@@ -46,12 +53,12 @@ const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, onSubmit,
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0"
-              className="w-full pl-8 pr-4 py-3 text-2xl border-2 border-slate-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition"
+              className={`w-full pl-8 pr-4 py-3 text-2xl border-2 border-slate-300 rounded-md transition ${ringColor}`}
               required
               min="1"
             />
           </div>
-          
+
           <div className="flex justify-end gap-3 mt-8">
             <button
               type="button"
@@ -62,7 +69,7 @@ const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, onSubmit,
             </button>
             <button
               type="submit"
-              className="px-6 py-2 rounded-md bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
+              className={`px-6 py-2 rounded-md text-white font-semibold transition ${buttonColor}`}
             >
               追加
             </button>

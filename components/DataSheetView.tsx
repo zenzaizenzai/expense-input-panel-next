@@ -1,8 +1,8 @@
 import React, { useMemo, useRef } from 'react';
-import type { Expense } from '../types';
+import type { Transaction } from '../types';
 
 interface DataSheetViewProps {
-  expenses: Expense[];
+  transactions: Transaction[];
   onClose: () => void;
   onClear: () => void;
 }
@@ -13,12 +13,17 @@ const CopyIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const DataSheetView: React.FC<DataSheetViewProps> = ({ expenses, onClose, onClear }) => {
+const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, onClose, onClear }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const tsvData = useMemo(() => {
-    return expenses.map(e => `${e.category}\t${e.amount}`).join('\n');
-  }, [expenses]);
+    // Format: Category <tab> Expense <tab> Income
+    return transactions.map(t => {
+      const income = t.type === 'income' ? t.amount : 0;
+      const expense = t.type === 'expense' ? t.amount : 0;
+      return `${t.category}\t${expense}\t${income}`;
+    }).join('\n');
+  }, [transactions]);
 
   const handleCopy = () => {
     if (textareaRef.current) {
@@ -33,29 +38,35 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ expenses, onClose, onClea
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 w-full max-w-2xl flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 w-full max-w-3xl flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">経費データシート</h2>
+          <h2 className="text-2xl font-bold text-slate-800">データシート</h2>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-800 text-2xl font-bold">&times;</button>
         </div>
 
-        {expenses.length === 0 ? (
-          <p className="text-slate-500 text-center py-10">まだ経費が入力されていません。</p>
+        {transactions.length === 0 ? (
+          <p className="text-slate-500 text-center py-10">まだデータが入力されていません。</p>
         ) : (
           <>
             <div className="flex-grow overflow-y-auto border border-slate-200 rounded-lg">
               <table className="w-full text-left">
-                <thead className="bg-slate-100 sticky top-0">
+                <thead className="bg-slate-100 sticky top-0 z-10">
                   <tr>
                     <th className="p-3 font-semibold text-slate-600">カテゴリ</th>
-                    <th className="p-3 font-semibold text-slate-600 text-right">金額 (円)</th>
+                    <th className="p-3 font-semibold text-slate-600 text-right text-red-600">支出 (円)</th>
+                    <th className="p-3 font-semibold text-slate-600 text-right text-blue-600">収入 (円)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {expenses.map((expense) => (
-                    <tr key={expense.id} className="border-b border-slate-200 last:border-b-0">
-                      <td className="p-3">{expense.category}</td>
-                      <td className="p-3 text-right font-mono">{expense.amount.toLocaleString()}</td>
+                  {transactions.map((tx) => (
+                    <tr key={tx.id} className="border-b border-slate-200 last:border-b-0">
+                      <td className="p-3">{tx.category}</td>
+                      <td className="p-3 text-right font-mono text-slate-700">
+                        {tx.type === 'expense' ? tx.amount.toLocaleString() : '-'}
+                      </td>
+                      <td className="p-3 text-right font-mono text-slate-700">
+                        {tx.type === 'income' ? tx.amount.toLocaleString() : '-'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -64,7 +75,7 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ expenses, onClose, onClea
 
             <div className="mt-6">
               <label htmlFor="tsv-output" className="block text-sm font-medium text-slate-700 mb-2">
-                スプレッドシート用データ (TSV形式)
+                Excel用データ (コピーして貼り付け - 3列: カテゴリ/支出/収入)
               </label>
               <div className="relative">
                 <textarea
@@ -89,7 +100,7 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ expenses, onClose, onClea
         <div className="mt-8 flex justify-end items-center gap-4">
           <button
             onClick={handleClear}
-            disabled={expenses.length === 0}
+            disabled={transactions.length === 0}
             className="px-6 py-2 rounded-md bg-red-100 text-red-700 font-semibold hover:bg-red-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             データをクリア

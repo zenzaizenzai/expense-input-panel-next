@@ -25,7 +25,7 @@ const ExpenseCategoryPanel: React.FC<ExpenseCategoryPanelProps> = ({ category, o
       inputRef.current.select();
     }
   }, [isEditing]);
-  
+
   const handleSave = () => {
     if (label.trim() === '') {
       setLabel(category.label); // Revert if empty
@@ -59,9 +59,19 @@ const ExpenseCategoryPanel: React.FC<ExpenseCategoryPanelProps> = ({ category, o
       </div>
     );
   }
-  
+
+
+  const isIncome = category.type === 'income';
+  const containerClasses = isIncome
+    ? "relative group bg-blue-50 p-4 rounded-lg shadow-md hover:shadow-lg border-2 border-blue-200 hover:border-blue-400 transition-all duration-200 ease-in-out transform hover:-translate-y-1"
+    : "relative group bg-white p-4 rounded-lg shadow-md hover:shadow-lg border-2 border-transparent hover:border-indigo-400 transition-all duration-200 ease-in-out transform hover:-translate-y-1";
+
+  const editButtonClasses = isIncome
+    ? "absolute top-1 right-1 p-1 text-slate-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
+    : "absolute top-1 right-1 p-1 text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full";
+
   return (
-    <div className="relative group bg-white p-4 rounded-lg shadow-md hover:shadow-lg border-2 border-transparent hover:border-indigo-400 transition-all duration-200 ease-in-out transform hover:-translate-y-1">
+    <div className={containerClasses}>
       <button
         onClick={() => onClick(category.label)}
         className="w-full h-full aspect-w-1 aspect-h-1 flex items-center justify-center focus:outline-none"
@@ -69,9 +79,9 @@ const ExpenseCategoryPanel: React.FC<ExpenseCategoryPanelProps> = ({ category, o
       >
         <span className="text-slate-700 font-semibold text-center text-sm sm:text-base">{category.label}</span>
       </button>
-       <button
+      <button
         onClick={() => setIsEditing(true)}
-        className="absolute top-1 right-1 p-1 text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full"
+        className={editButtonClasses}
         aria-label={`Edit category name for ${category.label}`}
         title="ラベルを編集"
       >
