@@ -18,12 +18,12 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, showDate, o
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const tsvData = useMemo(() => {
-    // Format: [Date] <tab> Category <tab> Expense <tab> Income
+    // Format: [Date] <tab> Category <tab> Income <tab> Expense
     return transactions.map(t => {
       const income = t.type === 'income' ? t.amount : 0;
       const expense = t.type === 'expense' ? t.amount : 0;
       const dateStr = showDate ? `${t.date}\t` : '';
-      return `${dateStr}${t.category}\t${expense}\t${income}`;
+      return `${dateStr}${t.category}\t${income}\t${expense}`;
     }).join('\n');
   }, [transactions, showDate]);
 
@@ -56,8 +56,8 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, showDate, o
                   <tr>
                     {showDate && <th className="p-3 font-semibold text-slate-600">日付</th>}
                     <th className="p-3 font-semibold text-slate-600">カテゴリ</th>
-                    <th className="p-3 font-semibold text-slate-600 text-right text-red-600">支出 (円)</th>
                     <th className="p-3 font-semibold text-slate-600 text-right text-blue-600">収入 (円)</th>
+                    <th className="p-3 font-semibold text-slate-600 text-right text-red-600">支出 (円)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -66,10 +66,10 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, showDate, o
                       {showDate && <td className="p-3 text-slate-600 whitespace-nowrap">{tx.date}</td>}
                       <td className="p-3">{tx.category}</td>
                       <td className="p-3 text-right font-mono text-slate-700">
-                        {tx.type === 'expense' ? tx.amount.toLocaleString() : '-'}
+                        {tx.type === 'income' ? tx.amount.toLocaleString() : '-'}
                       </td>
                       <td className="p-3 text-right font-mono text-slate-700">
-                        {tx.type === 'income' ? tx.amount.toLocaleString() : '-'}
+                        {tx.type === 'expense' ? tx.amount.toLocaleString() : '-'}
                       </td>
                     </tr>
                   ))}
@@ -79,7 +79,7 @@ const DataSheetView: React.FC<DataSheetViewProps> = ({ transactions, showDate, o
 
             <div className="mt-6">
               <label htmlFor="tsv-output" className="block text-sm font-medium text-slate-700 mb-2">
-                Excel用データ (コピーして貼り付け - {showDate ? '4列: 日付/カテゴリ/支出/収入' : '3列: カテゴリ/支出/収入'})
+                Excel用データ (コピーして貼り付け - {showDate ? '4列: 日付/カテゴリ/収入/支出' : '3列: カテゴリ/収入/支出'})
               </label>
               <div className="relative">
                 <textarea

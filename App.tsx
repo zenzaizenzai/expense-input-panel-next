@@ -131,32 +131,45 @@ const App: React.FC = () => { /* State */
             <p className="text-slate-500 mt-2">カテゴリをクリックして金額を入力してください。</p>
           </div>
 
-          <div className="flex items-center justify-center bg-white p-2 rounded-lg shadow-sm border border-slate-200">
-            <label htmlFor="date-toggle" className="mr-3 text-slate-600 font-semibold cursor-pointer select-none">
-              日付入力
-            </label>
-            <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-              <input
-                type="checkbox"
-                name="date-toggle"
-                id="date-toggle"
-                checked={enableDate}
-                onChange={() => setEnableDate(!enableDate)}
-                className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                style={{
-                  right: enableDate ? '0' : 'auto',
-                  left: enableDate ? 'auto' : '0',
-                  borderColor: enableDate ? '#4f46e5' : '#cbd5e1'
-                }}
-              />
-              <label
-                htmlFor="date-toggle"
-                className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${enableDate ? 'bg-indigo-600' : 'bg-slate-300'}`}
-              ></label>
+          <div className="flex items-center justify-center bg-white p-2 rounded-lg shadow-sm border border-slate-200 gap-4">
+            <div className="flex items-center">
+              <label htmlFor="date-toggle" className="mr-3 text-slate-600 font-semibold cursor-pointer select-none">
+                日付入力
+              </label>
+              <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                <input
+                  type="checkbox"
+                  name="date-toggle"
+                  id="date-toggle"
+                  checked={enableDate}
+                  onChange={() => setEnableDate(!enableDate)}
+                  className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                  style={{
+                    right: enableDate ? '0' : 'auto',
+                    left: enableDate ? 'auto' : '0',
+                    borderColor: enableDate ? '#4f46e5' : '#cbd5e1'
+                  }}
+                />
+                <label
+                  htmlFor="date-toggle"
+                  className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${enableDate ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                ></label>
+              </div>
+              <span className={`text-sm font-bold ${enableDate ? 'text-indigo-600' : 'text-slate-400'}`}>
+                {enableDate ? 'ON' : 'OFF'}
+              </span>
             </div>
-            <span className={`text-sm font-bold ${enableDate ? 'text-indigo-600' : 'text-slate-400'}`}>
-              {enableDate ? 'ON' : 'OFF'}
-            </span>
+
+            {enableDate && (
+              <div className="flex items-center pl-4 border-l border-slate-200">
+                <input
+                  type="date"
+                  value={currentDate}
+                  onChange={(e) => setCurrentDate(e.target.value)}
+                  className="px-3 py-1 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700"
+                />
+              </div>
+            )}
           </div>
         </header>
 
