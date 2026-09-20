@@ -90,21 +90,16 @@ const App: React.FC = () => { /* State */
     );
   };
 
-  const handleAddTransaction = (amount: number, date: string) => {
+  const handleAddTransaction = (amount: number) => {
     if (selectedCategory) {
       const newTransaction: Transaction = {
         id: new Date().getTime().toString(),
         category: selectedCategory.label,
         amount,
         type: selectedCategory.type,
-        date: date,
+        date: currentDate,
       };
       setTransactions(prev => [...prev, newTransaction]);
-
-      // Update current date to reuse it next time if in date mode
-      if (enableDate) {
-        setCurrentDate(date);
-      }
     }
     setIsModalOpen(false);
     setSelectedCategory(null);
@@ -159,25 +154,27 @@ const App: React.FC = () => { /* State */
                 {enableDate ? 'ON' : 'OFF'}
               </span>
             </div>
-
-            {enableDate && (
-              <div className="flex items-center pl-4 border-l border-slate-200">
-                <input
-                  type="date"
-                  value={currentDate}
-                  onChange={(e) => setCurrentDate(e.target.value)}
-                  className="px-3 py-1 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700"
-                />
-              </div>
-            )}
           </div>
         </header>
 
-        {/* カテゴリグリッド (支出16 + 収入4 = 20個) */}
+        {/* 日付ONのときカレンダーを常時表示 */}
+        {enableDate && (
+          <div className="mb-6 flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-indigo-200">
+            <label className="text-slate-700 font-semibold whitespace-nowrap">📅 日付:</label>
+            <input
+              type="date"
+              value={currentDate}
+              onChange={(e) => setCurrentDate(e.target.value)}
+              className="flex-1 max-w-xs px-3 py-2 text-lg border-2 border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        )}
+
+        {/* カテゴリグリッド (収入4 + 支出16 = 20個) */}
         {/* スマホ(縦長)で見やすいように2列、タブレットは3~4列、PCは5列くらいにする */}
         <main className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-          {/* 先に支出を表示 */}
-          {expenseCategories.map(category => (
+          {/* 先に収入を表示 */}
+          {incomeCategories.map(category => (
             <ExpenseCategoryPanel
               key={category.id}
               category={category}
@@ -185,8 +182,8 @@ const App: React.FC = () => { /* State */
               onUpdate={handleUpdateCategory}
             />
           ))}
-          {/* 続けて収入を表示 */}
-          {incomeCategories.map(category => (
+          {/* 続けて支出を表示 */}
+          {expenseCategories.map(category => (
             <ExpenseCategoryPanel
               key={category.id}
               category={category}
@@ -210,8 +207,6 @@ const App: React.FC = () => { /* State */
       {isModalOpen && selectedCategory && (
         <AmountInputModal
           category={selectedCategory}
-          enableDate={enableDate}
-          initialDate={currentDate}
           onSubmit={handleAddTransaction}
           onClose={handleCloseModal}
         />

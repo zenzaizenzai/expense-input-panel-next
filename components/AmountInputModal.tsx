@@ -3,13 +3,11 @@ import type { Category } from '../types';
 
 interface AmountInputModalProps {
   category: Category;
-  enableDate: boolean;
-  initialDate: string;
-  onSubmit: (amount: number, date: string) => void;
+  onSubmit: (amount: number) => void;
   onClose: () => void;
 }
 
-const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, enableDate, initialDate, onSubmit, onClose }) => {
+const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, onSubmit, onClose }) => {
   const [amount, setAmount] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -23,7 +21,7 @@ const AmountInputModal: React.FC<AmountInputModalProps> = ({ category, enableDat
     e.preventDefault();
     const numericAmount = parseInt(amount, 10);
     if (!isNaN(numericAmount) && numericAmount > 0) {
-      onSubmit(numericAmount, initialDate);
+      onSubmit(numericAmount);
     }
   };
 
