@@ -3,6 +3,7 @@ import type { Transaction, Category } from './types';
 import AmountInputModal from './components/AmountInputModal';
 import DataSheetView from './components/DataSheetView';
 import ExpenseCategoryPanel from './components/ExpenseCategoryPanel';
+import CalendarPicker from './components/CalendarPicker';
 
 const DataSheetIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -60,11 +61,14 @@ const App: React.FC = () => { /* State */
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isDataSheetVisible, setIsDataSheetVisible] = useState(false);
 
-  // New: Date Mode Toggle
-  const [enableDate, setEnableDate] = useState(false);
-  // Keep track of the last used date for convenience when in date mode
-  const [currentDate, setCurrentDate] = useState(() => new Date().toISOString().split('T')[0]);
-
+  // 選択中の日付（初期値は今日）
+  const [currentDate, setCurrentDate] = useState(() => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  });
 
   useEffect(() => {
     try {
@@ -120,55 +124,15 @@ const App: React.FC = () => { /* State */
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col items-center p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-6xl mx-auto">
-        <header className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-200 gap-4">
-          <div className="text-center md:text-left">
+        <header className="mb-6 pb-4 border-b border-slate-200">
+          <div className="text-center sm:text-left">
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-700">収支入力パネル</h1>
-            <p className="text-slate-500 mt-2">カテゴリをクリックして金額を入力してください。</p>
-          </div>
-
-          <div className="flex items-center justify-center bg-white p-2 rounded-lg shadow-sm border border-slate-200 gap-4">
-            <div className="flex items-center">
-              <label htmlFor="date-toggle" className="mr-3 text-slate-600 font-semibold cursor-pointer select-none">
-                日付入力
-              </label>
-              <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                <input
-                  type="checkbox"
-                  name="date-toggle"
-                  id="date-toggle"
-                  checked={enableDate}
-                  onChange={() => setEnableDate(!enableDate)}
-                  className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                  style={{
-                    right: enableDate ? '0' : 'auto',
-                    left: enableDate ? 'auto' : '0',
-                    borderColor: enableDate ? '#4f46e5' : '#cbd5e1'
-                  }}
-                />
-                <label
-                  htmlFor="date-toggle"
-                  className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${enableDate ? 'bg-indigo-600' : 'bg-slate-300'}`}
-                ></label>
-              </div>
-              <span className={`text-sm font-bold ${enableDate ? 'text-indigo-600' : 'text-slate-400'}`}>
-                {enableDate ? 'ON' : 'OFF'}
-              </span>
-            </div>
+            <p className="text-slate-500 mt-2">日付を選び、カテゴリをクリックして金額を入力してください。</p>
           </div>
         </header>
 
-        {/* 日付ONのときカレンダーを常時表示 */}
-        {enableDate && (
-          <div className="mb-6 flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-indigo-200">
-            <label className="text-slate-700 font-semibold whitespace-nowrap">📅 日付:</label>
-            <input
-              type="date"
-              value={currentDate}
-              onChange={(e) => setCurrentDate(e.target.value)}
-              className="flex-1 max-w-xs px-3 py-2 text-lg border-2 border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-        )}
+        {/* カレンダー常時表示 */}
+        <CalendarPicker selectedDate={currentDate} onSelectDate={setCurrentDate} />
 
         {/* カテゴリグリッド (収入4 + 支出16 = 20個) */}
         {/* スマホ(縦長)で見やすいように2列、タブレットは3~4列、PCは5列くらいにする */}
@@ -215,7 +179,7 @@ const App: React.FC = () => { /* State */
       {isDataSheetVisible && (
         <DataSheetView
           transactions={transactions}
-          showDate={enableDate}
+          showDate={true}
           onClose={() => setIsDataSheetVisible(false)}
           onClear={handleClearTransactions}
         />
