@@ -12,7 +12,7 @@ const DataSheetIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 const DEFAULT_CATEGORIES: Category[] = [
-  // 支出 16個
+  // 支出 18個
   { id: '食費', label: '食費', type: 'expense' },
   { id: '日用品', label: '日用品', type: 'expense' },
   { id: '交通費', label: '交通費', type: 'expense' },
@@ -25,26 +25,23 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: '美容・衣類', label: '美容・衣類', type: 'expense' },
   { id: '教育・教養', label: '教育・教養', type: 'expense' },
   { id: '家具・家電', label: '家具・家電', type: 'expense' },
+  { id: '消耗品費', label: '消耗品費', type: 'expense' },
+  { id: '雑費', label: '雑費', type: 'expense' },
   { id: '保険', label: '保険', type: 'expense' },
   { id: '税金・社会保険', label: '税金・社会保険', type: 'expense' },
   { id: '旅行・イベント', label: '旅行・イベント', type: 'expense' },
   { id: 'その他支出', label: 'その他', type: 'expense' },
-  // 収入 4個
-  { id: '給与', label: '給与', type: 'income' },
-  { id: '賞与', label: '賞与', type: 'income' },
-  { id: '臨時収入', label: '臨時収入', type: 'income' },
+  // 収入 2個
+  { id: '給与・売上', label: '給与・売上', type: 'income' },
   { id: 'その他収入', label: 'その他収入', type: 'income' },
 ];
 
 const loadCategories = (): Category[] => {
   try {
-    const storedCategories = localStorage.getItem('transactionCategories_v2');
+    const storedCategories = localStorage.getItem('transactionCategories_v3');
     if (storedCategories) {
       const parsed = JSON.parse(storedCategories);
-      // Validate structure roughly
       if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].type) {
-        // Merge logic if needed, but for now simple return
-        // If user had v1 data (no type), we ignore it by changing key to v2
         return parsed;
       }
     }
@@ -72,7 +69,7 @@ const App: React.FC = () => { /* State */
 
   useEffect(() => {
     try {
-      localStorage.setItem('transactionCategories_v2', JSON.stringify(categories));
+      localStorage.setItem('transactionCategories_v3', JSON.stringify(categories));
     } catch (error) {
       console.error("Failed to save categories to localStorage", error);
     }
@@ -134,7 +131,7 @@ const App: React.FC = () => { /* State */
         {/* カレンダー常時表示 */}
         <CalendarPicker selectedDate={currentDate} onSelectDate={setCurrentDate} />
 
-        {/* カテゴリグリッド (収入4 + 支出16 = 20個) */}
+        {/* カテゴリグリッド (収入2 + 支出18 = 20個) */}
         {/* スマホ(縦長)で見やすいように2列、タブレットは3~4列、PCは5列くらいにする */}
         <main className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           {/* 先に収入を表示 */}
